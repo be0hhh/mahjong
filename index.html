@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🀄 Маджонг</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* ... ваши стили ... */
+        
+        /* Адаптация под Telegram */
+        body {
+            background: var(--tg-theme-bg-color, #1a472a);
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+        
+        .game-board {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .tile {
+            width: 45px;
+            height: 65px;
+            font-size: 30px;
+        }
+        
+        @media (max-width: 600px) {
+            .tile {
+                width: 40px;
+                height: 58px;
+                font-size: 26px;
+            }
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1 class="title">🀄 Маджонг</h1>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-label">Счёт</div>
+            <div class="stat-value" id="score">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Пары</div>
+            <div class="stat-value" id="pairs">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Время</div>
+            <div class="timer" id="timer">00:00</div>
+        </div>
+    </div>
+    
+    <div class="game-board" id="board"></div>
+    
+    <div class="controls-container">
+        <div class="controls">
+            <button class="btn btn-primary" onclick="shuffleTiles()">Перемешать</button>
+            <button class="btn btn-secondary" onclick="resetGame()">Новая игра</button>
+            <button class="btn btn-secondary" onclick="showHint()">Подсказка</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); // Развернуть на весь экран
+        
+        // Адаптируем цвета под тему Telegram
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor || '#1a472a');
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor || '#ffffff');
+        
+        // Показываем главную кнопку Telegram
+        tg.MainButton.setText('ИГРАТЬ СНОВА');
+        tg.MainButton.onClick(() => {
+            resetGame();
+            tg.MainButton.hide();
+        });
+        
+        // ... остальной код игры ...
+        
+        function gameWin() {
+            clearInterval(timerInterval);
+            const finalTime = document.getElementById('timer').textContent;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalTime').textContent = finalTime;
+            
+            // Показываем нативную кнопку Telegram
+            tg.MainButton.show();
+            
+            // Отправляем данные боту
+            tg.sendData(JSON.stringify({
+                score: score,
+                time: finalTime,
+                action: 'win'
+            }));
+        }
+        
+        // Вибрация при совпадении (Haptic Feedback)
+        function matchTiles(tile1, tile2) {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+            // ... остальной код ...
+        }
+        
+        // Закрытие игры
+        function closeGame() {
+            tg.close();
+        }
+    </script>
+</body>
+</html>
